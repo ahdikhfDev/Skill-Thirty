@@ -1,11 +1,14 @@
 # Skill-Thirty
 
-An agent skill that turns **one URL** into a near-perfect front-end clone —
-either plain **HTML/CSS/JS** with no build step, or a **React + Vite** project —
-and can rebrand it afterwards.
+A small collection of agent skills for building and animating web pages:
 
-It packages the full workflow, a Playwright verification script, a QA checklist,
-and install instructions for several coding agents.
+- **clone-website** — turn one URL into a near-perfect static clone
+  (HTML/CSS/JS or React + Vite) and rebrand it.
+- **motion-graphics** — turn a written brief into a deterministic HTML
+  animation and render it to MP4, WebM or GIF.
+
+Each skill packages its workflow, scripts and references, and works with Zed,
+Claude Code, Cursor, Codex, Gemini CLI, Windsurf, Cline and Copilot.
 
 ## What's inside
 
@@ -17,7 +20,20 @@ clone-website/
     ├── targets.md            # static vs React + Vite structures
     ├── qa-checklist.md       # checklist + code snippets
     └── other-agents.md       # install/convert for other agents
-docs/clone-guide.md           # long-form explanation (Indonesian)
+
+motion-graphics/
+├── SKILL.md                  # prompt → stage → render workflow
+├── assets/stage.js           # deterministic timeline helpers
+├── scripts/render.mjs        # Playwright frames → ffmpeg video
+├── references/
+│   ├── prompts.md            # brief template + 20 prompts
+│   └── recipes.md            # scene code recipes
+└── examples/
+    ├── kinetic-type.html     # 6s sample source
+    ├── kinetic-type.mp4      # rendered sample
+    └── kinetic-type-poster.png
+
+docs/clone-guide.md           # long-form clone explanation (Indonesian)
 ```
 
 ## Install
@@ -28,14 +44,14 @@ the frontmatter.
 ### Zed (global)
 
 ```bash
-cp -r clone-website ~/.agents/skills/
+cp -r clone-website motion-graphics ~/.agents/skills/
 ```
 
 ### Claude Code
 
 ```bash
 mkdir -p ~/.claude/skills
-cp -r clone-website ~/.claude/skills/
+cp -r clone-website motion-graphics ~/.claude/skills/
 ```
 
 Project-local variants: `.agents/skills/` (Zed) or `.claude/skills/`
@@ -69,6 +85,17 @@ Clone https://example.com as a React + Vite project, one component per section.
 ```
 
 ```text
+Create a 6-second vertical motion graphic: MOTION reveals letter by letter,
+a light band inverts it at 2.5s, then an end card holds for a second.
+Render it to MP4 at 1080x1920, 30 fps.
+```
+
+```text
+Make a 5s 16:9 chart animation: line draws, area fills, tooltip at 3.2s.
+Use the motion-graphics skill and give me the prompt, the source and the video.
+```
+
+```text
 Rebrand this clone into "NamaBaru" with a warm gold palette.
 ```
 
@@ -91,7 +118,27 @@ The skill will:
 Details, folder trees and a section-to-component mapping:
 [`clone-website/references/targets.md`](clone-website/references/targets.md).
 
-## Verification
+## Motion graphics
+
+The `motion-graphics` skill writes the prompt, builds a deterministic HTML
+stage (`assets/stage.js`), and renders it frame by frame.
+
+```bash
+npm i playwright-core
+
+# render the bundled sample
+node ~/.agents/skills/motion-graphics/scripts/render.mjs \
+  --root ~/.agents/skills/motion-graphics \
+  --page examples/kinetic-type.html \
+  --out out/kinetic.mp4 --duration 6 --fps 30 --size 1080x1920
+```
+
+Formats: `mp4` (H.264), `webm` (VP9), `gif`. The renderer also writes a poster
+frame. Sample output: [`motion-graphics/examples/kinetic-type.mp4`](motion-graphics/examples/kinetic-type.mp4).
+
+Requirements: Node 18+, `playwright-core`, Chrome, and `ffmpeg` on `PATH`.
+
+## Verification (clone-website)
 
 `scripts/verify.mjs` serves the folder (or uses a live URL), scrolls through the
 page to trigger reveals, then writes desktop and mobile screenshots plus a
@@ -114,28 +161,30 @@ uses the `chrome` channel and falls back to bundled Chromium).
 
 ## Bahasa Indonesia
 
-Repo ini berisi satu **agent skill** untuk meng-clone website dari sebuah URL
-menjadi halaman statis HTML/CSS/JS **atau** project React + Vite, lalu siap
-di-rebrand. Isinya: alur kerja 8 fase, pilihan dua target output, skrip
-verifikasi Playwright, checklist QA, dan cara pasang di berbagai agent
-(Claude Code, Cursor, Codex, Gemini CLI, Windsurf, Cline, Copilot).
+Repo ini berisi kumpulan **agent skill**:
 
-Pasang di Zed:
+- **clone-website** — clone website dari satu URL jadi HTML/CSS/JS statis atau
+  project React + Vite, lalu siap di-rebrand.
+- **motion-graphics** — bikin video motion graphics dari prompt: stage HTML
+  deterministik, render frame-accurate ke MP4/WebM/GIF pakai Playwright + ffmpeg.
+
+Pasang keduanya di Zed:
 
 ```bash
-cp -r clone-website ~/.agents/skills/
+cp -r clone-website motion-graphics ~/.agents/skills/
 ```
 
 Lalu minta di chat: *"Clone https://contoh.com, pakai React + Vite"* atau
-*"Clone https://contoh.com jadi HTML/CSS/JS biasa"*. Penjelasan panjang ada di
-[`docs/clone-guide.md`](docs/clone-guide.md).
+*"Bikin motion graphic 6 detik 9:16, kinetic type, render MP4"*. Penjelasan
+clone ada di [`docs/clone-guide.md`](docs/clone-guide.md).
 
 ## Notes
 
 - Clone for study or reference. If you publish the result, replace the original
   brand, copy and third-party assets.
-- The skill never copies analytics, trackers, auth flows or credentials.
-- The verification script is agent-agnostic; any tool with Node can run it.
+- The skills never copy analytics, trackers, auth flows or credentials.
+- `verify.mjs` and `render.mjs` are agent-agnostic; any tool with Node can run
+  them. Rendering also needs `ffmpeg`.
 
 ## License
 
