@@ -134,7 +134,10 @@ node ~/.agents/skills/motion-graphics/scripts/render.mjs \
 ```
 
 Formats: `mp4` (H.264), `webm` (VP9), `gif`. The renderer also writes a poster
-frame. Sample output: [`motion-graphics/examples/kinetic-type.mp4`](motion-graphics/examples/kinetic-type.mp4).
+frame. Sample output: [`kinetic-type.mp4`](motion-graphics/examples/kinetic-type.mp4),
+[`kinetic-type.gif`](motion-graphics/examples/kinetic-type.gif).
+
+![Kinetic type preview](motion-graphics/examples/kinetic-type.gif)
 
 Requirements: Node 18+, `playwright-core`, Chrome, and `ffmpeg` on `PATH`.
 
